@@ -1,14 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Assets;
 using UnityEngine;
 
 public class Controller : MonoBehaviour
 {
     //проверка лучей слева и справа 
     //поправить скорость падения кубов.Что бы не зависело от ФПС
-    public Rule[] rules;
     public float previousTime; 
     public float FallTime = 0.8f;
     public Factory factory;
@@ -44,17 +42,9 @@ public class Controller : MonoBehaviour
         {
             End();
         }
-        void ExecuteRules()
-        {
-            foreach (Rule rule in rules)
-            {
-                rule.ExecuteRule();
-            }
-        }
 
         if (Time.time - previousTime > FallTime)
         {
-            ExecuteRules();
             transform.position += Vector3.down;
             previousTime = Time.time;
         }
