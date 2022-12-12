@@ -9,8 +9,6 @@ namespace Assets
 {
     public abstract class Rule : MonoBehaviour
     {
-        public abstract void ExecuteRule();
-
- 
+       public abstract void ExecuteRule();
     }
 }

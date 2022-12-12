@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,20 +6,18 @@ using UnityEngine;
 
 public class Controller : MonoBehaviour
 {
-    //проверка лучей слева и справа 
-    //поправить скорость падения кубов.Что бы не зависело от ФПС
     public float previousTime; 
     public float FallTime = 0.8f;
     public Factory factory;
     public float Speed = 0.01f;
     public int degrees = 90;
-    // Start is called before the first frame update
-    void Start()
+    private Vector3 StartPosition;
+
+    private void Start()
     {
-        
+        StartPosition = transform.position;
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.LeftArrow) && CanMoveLeft())
@@ -38,7 +37,7 @@ public class Controller : MonoBehaviour
             Up();
         }
 
-        if (transform.position.y <= -5 | !CanDown())
+        if (!CanDown())
         {
             End();
         }
@@ -48,10 +47,9 @@ public class Controller : MonoBehaviour
             transform.position += Vector3.down;
             previousTime = Time.time;
         }
-    }
- 
+    } 
 
-    private bool CanDown()
+    private bool CanDown()//проверяет можно ли передвигатся вниз
     {
         foreach (Part part in GetComponentsInChildren<Part>())
         {
@@ -63,7 +61,7 @@ public class Controller : MonoBehaviour
         return true;
     }
 
-    private bool CanMoveLeft()
+    private bool CanMoveLeft()//проверяет можно ли передвигатся влево
     {
         foreach (Part part in GetComponentsInChildren<Part>())       
             if (part.RawLeft())
@@ -71,7 +69,7 @@ public class Controller : MonoBehaviour
         return true;
     }
 
-    private bool CanMoveRight()
+    private bool CanMoveRight()//проверяет можно ли передвигатся вправо
     {
         foreach (Part part in GetComponentsInChildren<Part>())        
             if (part.RawRight())           
@@ -79,42 +77,74 @@ public class Controller : MonoBehaviour
         return true;
     }
 
-    public void SetColor(Color color)
+    public void SetColor(Color color)//даёт цвет объекту 
     {
         foreach(MeshRenderer meshRenderer in GetComponentsInChildren<MeshRenderer>())
-        {
-            
+        {            
             meshRenderer.material.color = color;
         }
     }
-    private void End()
+
+    private void End()//
     {
-        foreach (Transform child in transform)
+        if (StartPosition == transform.position)
         {
-            child.GetComponent<Collider>().enabled = true;
+            Debug.Log("Loser!");
         }
-        transform.DetachChildren();
+        else
+        {
+            foreach (Transform child in transform)
+            {
+                child.GetComponent<Collider>().enabled = true;
+            }
+            transform.DetachChildren();
+            factory.Create();
+        }
         GameObject.Destroy(gameObject);
-        factory.Create();
     }
 
-    void Left()
+    void Left()//передвигает объект влево
     {
         transform.position += Vector3.left;  
     }
-    void Right()
+    void Right()//передвигает объект вправо
     {
         transform.position += Vector3.right;
     }
-    void Down()
+    void Down()//передвигает объект вниз
     {
         transform.position += Vector3.down;
     }
-    private void Up()
+    private void Up()//поварачивает объект на 90 градусов
     {
         var Angle = transform.eulerAngles;
         Angle.z += degrees;
         transform.eulerAngles = Angle;
+        foreach (Part part in GetComponentsInChildren<Part>())
+        {
+            if (part.Validation() == false)
+            {
+                transform.position -= (Vector3) GetDelta();               
+                break;
+            }
+        }
+        
     }
 
+    Vector2 GetDelta()//перемещает объект вниз каждую секунду
+    {
+        int direction = 0;
+        int max = 0;
+        foreach(Part part in GetComponentsInChildren<Part>())
+        {
+            int current =(int) Mathf.Abs(part.transform.position.x) - 4;
+            if(max < current)
+            {
+                max = current;
+                direction = (int) Mathf.Sign(part.transform.position.x - 4); 
+
+            }
+        }
+        return Vector2.right * max * direction;
+    }
 }

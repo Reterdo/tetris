@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class Factory : MonoBehaviour
 {
-    public Rule[] rules;
-    public GameObject[] prefabs;
+    [SerializeField] private Rule[] rules;
+    [SerializeField] private GameObject[] prefabs;
     private int random;
     void ExecuteRules()
     {
@@ -15,18 +15,13 @@ public class Factory : MonoBehaviour
             rule.ExecuteRule();
         }
     }
-
-    public GameObject Create()
+    public void Create()
     {
         ExecuteRules();
         random = Random.Range(0, prefabs.Length);
         var gameObject = Instantiate(prefabs[random], transform.position, Quaternion.identity);
         gameObject.SetActive(true);
         gameObject.GetComponent<Controller>().SetColor(Random.ColorHSV());
-        return gameObject;
-    }
-    private void Start()
-    {
-        Create();
+        //return gameObject;
     }
 }
